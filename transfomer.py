@@ -93,12 +93,20 @@ class TransformerDecoder(nn.Module):
         
         return X
     
-    def generate():
-        pass
+    def generate(self, X,max_gen_tokens=10):
+        for _ in range(max_gen_tokens):
+            idx_cond = X[:, -X.shape[1]:]
+            output = self(idx_cond)
+            output = output[:, -1, :]
+            probs = F.softmax(output, dim=-1) 
+            X_next = torch.multinomial(probs, num_samples=1) 
+            X = torch.cat((X, X_next), dim=1)
+            X = X[:,1:]
+        return X
     
 if __name__ == "__main__":
     vocab_size = 65
     emd_dim = 128
     transformer = TransformerDecoder(num_heads=8,d_k=64,d_v=64,emd_dim=emd_dim,vocab_size=vocab_size,output_layer=True, input_layer=True)
     print(transformer(torch.randint(0,1,(1,10))).shape)
-    #print(transformer.generate(torch.randint(0,1,(1,64))))
+    print(transformer.generate(torch.randint(0,1,(1,10))))

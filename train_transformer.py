@@ -1,7 +1,5 @@
 from data_processing import CharLevelProcessor, window_data_test_train, batch_data,read_data
-import numpy as np
 import torch
-from torch import nn
 from torch.nn import functional as F
 from transfomer import TransformerDecoder
 
@@ -79,7 +77,7 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
 
     print(f'Validation Loss: {val_loss/len(X_test):.4f}')
-    
+torch.save(model.state_dict(), f"data/model/transformer_{num_epochs}.pth")
 # Generate text
 #model.eval()
 #test = model.generate(Y_test[0],embedding)
