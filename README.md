@@ -55,5 +55,5 @@ n w larn g
 
 
 ## Conclusion
-We can observe that, with more epochs, the model begins to use more full words and meaningful patterns. Although the results are still not perfect, further hyperparameter tuning and more training epochs would likely improve the text generation quality and bring it closer to the results shown in the video.
-This project was heavily inspired by [this YouTube video](https://www.youtube.com/watch?v=kCc8FmEb1nY&t=1829s) and was primarily done to gain a deeper understanding of how transformers work.
+We can observe that, with more epochs, the model begins to use more full words and meaningful patterns. Although the results are still not perfect, further hyperparameter tuning and more training epochs would likely improve the text generation quality.
+This project was inspired by Andrej Karpathy's Transformer Tutorial [this YouTube video](https://www.youtube.com/watch?v=kCc8FmEb1nY&t=1829s) and was primarily done to gain a deeper understanding of how transformers work, with the additional opportunity to experiment with the transformer architecture to gain some pratical experience.
