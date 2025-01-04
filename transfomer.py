@@ -39,10 +39,39 @@ class MultiHeadAttention(nn.Module):
         return out
 
 
-
 class TransformerDecoder(nn.Module):
-    def __init__(self, num_heads,d_k, d_v,emd_dim,vocab_size,output_layer = False, input_layer = False,dropout=0.2):
+    def __init__(self, num_decoder ,num_heads,d_k, d_v,emd_dim,vocab_size,dropout=0.2):
         super(TransformerDecoder, self).__init__()
+        if num_decoder < 2:
+            raise ValueError("num_decoder must be greater than 0")
+        self.input_layer = TransformerDecoderBlock(num_heads,d_k, d_v,emd_dim,vocab_size, input_layer=True, output_layer=False,dropout=dropout)
+        self.hidden_layers = nn.ModuleList([TransformerDecoderBlock(num_heads,d_k, d_v,emd_dim,vocab_size, input_layer=False, output_layer=False,dropout=dropout) for _ in range(num_decoder-2)])
+        self.output_layer = TransformerDecoderBlock(num_heads,d_k, d_v,emd_dim,vocab_size, input_layer=False ,output_layer=True,dropout=dropout)
+    
+    def forward(self, X):
+        X = self.input_layer(X)
+        for layer in self.hidden_layers:
+            X = layer(X)
+        X = self.output_layer(X)
+        return X
+    
+    def generate(self, X,max_gen_tokens=10):
+        for _ in range(max_gen_tokens):
+            idx_cond = X[:, -X.shape[1]:]
+            output = self(idx_cond)
+            output = output[:, -1, :]
+            probs = F.softmax(output, dim=-1) 
+            X_next = torch.multinomial(probs, num_samples=1) 
+            X = torch.cat((X, X_next), dim=1)
+            X = X[:,1:]
+        return X
+        
+
+
+
+class TransformerDecoderBlock(nn.Module):
+    def __init__(self, num_heads,d_k, d_v,emd_dim,vocab_size,output_layer = False, input_layer = False,dropout=0.2):
+        super(TransformerDecoderBlock, self).__init__()
         self.input_layer = input_layer
         self.output_layer = output_layer
         
@@ -107,6 +136,6 @@ class TransformerDecoder(nn.Module):
 if __name__ == "__main__":
     vocab_size = 65
     emd_dim = 128
-    transformer = TransformerDecoder(num_heads=8,d_k=64,d_v=64,emd_dim=emd_dim,vocab_size=vocab_size,output_layer=True, input_layer=True)
+    transformer = TransformerDecoder(num_decoder=3,num_heads=8,d_k=64,d_v=64,emd_dim=emd_dim,vocab_size=vocab_size,dropout=0.2)
     print(transformer(torch.randint(0,1,(1,10))).shape)
     print(transformer.generate(torch.randint(0,1,(1,10))))

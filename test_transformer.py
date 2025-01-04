@@ -21,9 +21,9 @@ d_v = vocab_size
 emd_dim = 128
 num_epochs = 1
 
-
-MODEL_NAME = 'data/model/transformer_1.pth'
-model = TransformerDecoder(num_heads=8,d_k=d_k,d_v=d_v,emd_dim=emd_dim,vocab_size=vocab_size,output_layer=True, input_layer=True)
+NUM_DECODER = 3
+MODEL_NAME = 'data/model/transformer_5.pth'
+model = TransformerDecoder(3,num_heads=8,d_k=d_k,d_v=d_v,emd_dim=emd_dim,vocab_size=vocab_size)
 model.load_state_dict(torch.load(MODEL_NAME, weights_only=True))
 model.eval()
 START_SENTENCE = 'The'

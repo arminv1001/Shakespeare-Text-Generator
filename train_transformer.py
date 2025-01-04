@@ -6,7 +6,7 @@ from transfomer import TransformerDecoder
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Device: ", device)
-
+torch.set_default_device(device)
 data = read_data()
 processor = CharLevelProcessor(data)
 vocab_size = processor.get_vocab_size()
@@ -17,9 +17,8 @@ chars = processor.get_chars()
 d_k = vocab_size
 d_v = vocab_size
 emd_dim = 128
-num_epochs = 1
-
-
+num_epochs = 5
+num_decoder = 3
 
 data_encoded = processor.encode_data(data)
 X_train, X_test, Y_train, Y_test = window_data_test_train(data_encoded)
@@ -28,7 +27,7 @@ X_test, Y_test = torch.tensor(X_test), torch.tensor(Y_test)
 X_train, Y_train = batch_data(X_train, Y_train)
 X_test, Y_test = batch_data(X_test, Y_test)
 
-model = TransformerDecoder(num_heads=8,d_k=d_k,d_v=d_v,emd_dim=emd_dim,vocab_size=vocab_size,output_layer=True, input_layer=True)
+model = TransformerDecoder(num_decoder=num_decoder,num_heads=8,d_k=d_k,d_v=d_v,emd_dim=emd_dim,vocab_size=vocab_size)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
@@ -77,10 +76,4 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
 
     print(f'Validation Loss: {val_loss/len(X_test):.4f}')
-torch.save(model.state_dict(), f"data/model/transformer_{num_epochs}.pth")
-# Generate text
-#model.eval()
-#test = model.generate(Y_test[0],embedding)
-#test_result = test[0].detach().cpu().numpy().tolist()
-#test_result = processor.decode_data(test_result)
-#print("".join(test_result))
+    torch.save(model.state_dict(), f"data/model/transformer_{num_epochs}.pth")
